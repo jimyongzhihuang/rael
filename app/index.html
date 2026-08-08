@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RAEL Accounting Execution Laboratory</title>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f7fb;
+    color: #10233f;
+  }
+
+  .app {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, #12345b, #245f9e);
+    color: white;
+    padding: 34px;
+    border-radius: 18px 18px 0 0;
+    text-align: center;
+  }
+
+  .hero h1 {
+    margin: 0 0 10px;
+    font-size: 34px;
+  }
+
+  .hero p {
+    margin: 6px 0;
+    font-size: 16px;
+  }
+
+  .privacy {
+    display: inline-block;
+    margin-top: 14px;
+    border: 1px solid rgba(255,255,255,.45);
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+  }
+
+  .panel {
+    background: white;
+    padding: 22px;
+    border-radius: 0 0 18px 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.08);
+  }
+
+  .tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+
+  .tab {
+    border: 1px solid #cbd7e6;
+    background: #f7f9fc;
+    padding: 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .tab.active {
+    background: #1767d1;
+    color: white;
+    border-color: #1767d1;
+  }
+
+  .tab strong {
+    display: block;
+    font-size: 17px;
+    margin-bottom: 5px;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 18px;
+  }
+
+  .card {
+    border: 1px solid #d7e0eb;
+    border-radius: 14px;
+    padding: 18px;
+    background: #fff;
+  }
+
+  .label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1767d1;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  h2 {
+    margin: 0 0 14px;
+    font-size: 24px;
+  }
+
+  select {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #bcc9da;
+    border-radius: 8px;
+    font-size: 15px;
+  }
+
+  .scenario-note {
+    margin-top: 14px;
+    padding: 13px;
+    background: #f3f7fc;
+    border-left: 4px solid #1767d1;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .object-list {
+    margin-top: 16px;
+  }
+
+  .object {
+    display: flex;
+    justify-content: space-between;
+    padding: 9px 0;
+    border-bottom: 1px solid #edf1f5;
+    font-size: 14px;
+  }
+
+  .trace {
+    display: grid;
+    gap: 10px;
+  }
+
+  .step {
+    border: 1px solid #dde5ef;
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .step-num {
+    background: #edf4ff;
+    color: #1767d1;
+    border-radius: 8px;
+    text-align: center;
+    padding: 8px 4px;
+    font-weight: 700;
+  }
+
+  .step-title {
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+
+  .step-desc {
+    font-size: 13px;
+    color: #5a6778;
+  }
+
+  .status {
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 6px 9px;
+    white-space: nowrap;
+  }
+
+  .pass {
+    background: #e6f6eb;
+    color: #19723a;
+  }
+
+  .review {
+    background: #fff3d6;
+    color: #9a6500;
+  }
+
+  .fail {
+    background: #ffe4e4;
+    color: #b32323;
+  }
+
+  .hold {
+    background: #e9edf4;
+    color: #4e5c6e;
+  }
+
+  .final {
+    margin-top: 16px;
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+    font-weight: 800;
+    font-size: 20px;
+  }
+
+  .final.closed {
+    background: #e6f6eb;
+    color: #176a36;
+  }
+
+  .final.reviewing {
+    background: #fff3d6;
+    color: #8c5c00;
+  }
+
+  .final.escalated {
+    background: #ffe4e4;
+    color: #a11d1d;
+  }
+
+  .geep {
+    margin-top: 16px;
+    background: #0f1f33;
+    color: #dbe9f8;
+    padding: 15px;
+    border-radius: 10px;
+    font-family: monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+  }
+
+  .footer-note {
+    margin-top: 20px;
+    font-size: 12px;
+    color: #66758a;
+    text-align: center;
+  }
+
+  @media (max-width: 800px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+
+    .tabs {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <div class="hero">
+    <h1>RAEL Accounting Execution Laboratory</h1>
+    <p>Governed Automation for Relationship-Preserving Accounting</p>
+    <div class="privacy">Browser-local prototype · Synthetic data only · No data transmitted</div>
+  </div>
+
+  <div class="panel">
+
+    <div class="tabs">
+      <button id="settlementTab" class="tab active" onclick="setMode('settlement')">
+        <strong>Settlement Relationships</strong>
+        Accounts-Receivable Payment Matching
+      </button>
+
+      <button id="transformationTab" class="tab" onclick="setMode('transformation')">
+        <strong>Transformation Relationships</strong>
+        Production-Cost and Inventory Conversion
+      </button>
+    </div>
+
+    <div class="layout">
+
+      <div class="card">
+        <div class="label">Scenario</div>
+        <h2 id="scenarioTitle">Settlement Execution</h2>
+
+        <select id="scenarioSelect" onchange="renderScenario()"></select>
+
+        <div id="scenarioNote" class="scenario-note"></div>
+
+        <div class="object-list" id="objectList"></div>
+      </div>
+
+      <div class="card">
+        <div class="label">RAEL Execution Trace</div>
+        <h2 id="traceTitle">Governed Processing</h2>
+
+        <div id="trace" class="trace"></div>
+
+        <div id="finalState" class="final"></div>
+
+        <div id="geep" class="geep"></div>
+      </div>
+
+    </div>
+
+    <div class="footer-note">
+      Retrieve → Classify → Structure → Route → Execute → Verify
+    </div>
+
+  </div>
+</div>
+
+<script>
+const data = {
+  settlement: {
+    title: "Settlement Execution",
+    scenarios: {
+      exact: {
+        name: "Exact Match",
+        note: "Payment, customer, invoice, amount and evidence align. Delegated BSTP authority is available and the resulting state is independently verifiable.",
+        objects: [
+          ["Payment", "CAD 12,500"],
+          ["Customer", "C-1042"],
+          ["Invoice", "INV-8821"],
+          ["Evidence", "Complete"],
+          ["Authority", "BSTP-AR-01"]
+        ],
+        steps: [
+          ["Retrieve", "Payment, remittance and open invoice records admitted.", "PASS"],
+          ["Classify", "Customer payment and invoice candidates identified.", "PASS"],
+          ["Structure", "GEEP assembled with complete supporting evidence.", "PASS"],
+          ["Route", "BSTP conditions satisfied.", "BSTP"],
+          ["Execute", "Payment applied to INV-8821.", "COMPLETE"],
+          ["Verify", "Invoice balance, customer balance and GL effect confirmed.", "PASS"]
+        ],
+        final: "VERIFIED CLOSED",
+        finalClass: "closed",
+        geep: {
+          route: "BSTP",
+          verification: "passed",
+          closure_status: "verified_closed"
+        }
+      },
+
+      ambiguous: {
+        name: "Ambiguous Match",
+        note: "A likely customer is identified, but two invoices match the payment amount and remittance evidence does not resolve the intended obligation.",
+        objects: [
+          ["Payment", "CAD 10,000"],
+          ["Customer", "C-2041"],
+          ["Invoice Candidate 1", "INV-9102"],
+          ["Invoice Candidate 2", "INV-9107"],
+          ["Missing Evidence", "Remittance advice"]
+        ],
+        steps: [
+          ["Retrieve", "Payment and open invoice records admitted.", "PASS"],
+          ["Classify", "High-confidence customer relationship identified.", "PASS"],
+          ["Structure", "Competing invoice relationships remain visible.", "REVIEW"],
+          ["Route", "Evidence and rule determinacy conditions not satisfied.", "ASLTP"],
+          ["Execute", "No accounting action permitted before review.", "HELD"],
+          ["Verify", "Verification deferred because execution has not occurred.", "HELD"]
+        ],
+        final: "ASLTP REVIEW",
+        finalClass: "reviewing",
+        geep: {
+          route: "ASLTP_REVIEW",
+          unresolved_question: "Which invoice was intended to be settled?",
+          closure_status: "escalated"
+        }
+      },
+
+      failure: {
+        name: "Verification Failure",
+        note: "The execution interface returns technical success, but RAEL re-reads the accounting system and finds that the intended post-execution state was not created.",
+        objects: [
+          ["Payment", "CAD 8,450"],
+          ["Customer", "C-1188"],
+          ["Invoice", "INV-9033"],
+          ["Interface Response", "200 OK"],
+          ["Observed Invoice Balance", "CAD 8,450"]
+        ],
+        steps: [
+          ["Retrieve", "Payment and invoice records admitted.", "PASS"],
+          ["Classify", "Payment relationship identified.", "PASS"],
+          ["Structure", "Evidence and execution conditions satisfied.", "PASS"],
+          ["Route", "BSTP route authorized.", "BSTP"],
+          ["Execute", "ERP interface returns successful acknowledgement.", "COMPLETE"],
+          ["Verify", "Invoice balance and GL effect do not reflect the authorized action.", "FAIL"]
+        ],
+        final: "ESCALATED",
+        finalClass: "escalated",
+        geep: {
+          execution_response: "200 OK",
+          verification: "failed",
+          exception: "POST_STATE_MISMATCH",
+          closure_status: "escalated"
+        }
+      }
+    }
+  },
+
+  transformation: {
+    title: "Transformation Execution",
+    scenarios: {
+      normal: {
+        name: "Normal Production Conversion",
+        note: "Materials, labour and manufacturing overhead are linked to the authorized production order and cost object. Completed production is verified before WIP is transferred to finished goods.",
+        objects: [
+          ["Production Order", "PO-260701"],
+          ["Cost Object", "PRODUCT-A"],
+          ["Direct Materials", "CAD 62,400"],
+          ["Units Completed", "1,000"],
+          ["State Transition", "WIP → Finished Goods"]
+        ],
+        steps: [
+          ["Retrieve", "Production, material, labour and completion records admitted.", "PASS"],
+          ["Classify", "Cost inputs and production relationships identified.", "PASS"],
+          ["Structure", "Cost inputs, allocation rule and inventory transition structured.", "PASS"],
+          ["Route", "Authorized costing and conversion conditions satisfied.", "BSTP"],
+          ["Execute", "Verified production cost transferred from WIP to finished goods.", "COMPLETE"],
+          ["Verify", "Cost object, unit cost, inventory quantity, WIP and GL effect confirmed.", "PASS"]
+        ],
+        final: "VERIFIED CLOSED",
+        finalClass: "closed",
+        geep: {
+          route: "BSTP",
+          inventory_transition: "work_in_process_to_finished_goods",
+          verification: "passed",
+          closure_status: "verified_closed"
+        }
+      },
+
+      conflict: {
+        name: "Allocation Conflict",
+        note: "Production activity is identified, but the overhead allocation basis conflicts with the authorized costing rule. RAEL prevents automatic conversion.",
+        objects: [
+          ["Production Order", "PO-260811"],
+          ["Cost Object", "PRODUCT-B"],
+          ["Overhead Rule", "Conflict detected"],
+          ["Cost Driver", "Unresolved"],
+          ["Authority", "Professional determination required"]
+        ],
+        steps: [
+          ["Retrieve", "Production and costing records admitted.", "PASS"],
+          ["Classify", "Materials, labour and overhead inputs identified.", "PASS"],
+          ["Structure", "Conflicting allocation evidence preserved.", "REVIEW"],
+          ["Route", "Authorized costing rule cannot be established.", "ASLTP"],
+          ["Execute", "Inventory conversion held pending professional review.", "HELD"],
+          ["Verify", "No closure permitted before authorized allocation is determined.", "HELD"]
+        ],
+        final: "ASLTP REVIEW",
+        finalClass: "reviewing",
+        geep: {
+          route: "ASLTP_REVIEW",
+          unresolved_question: "Which authorized overhead allocation rule applies?",
+          closure_status: "escalated"
+        }
+      },
+
+      mismatch: {
+        name: "Inventory-State Mismatch",
+        note: "The system accepts the production-cost transfer, but the observed finished-goods quantity, WIP balance or GL effect differs from the authorized conversion.",
+        objects: [
+          ["Production Order", "PO-260815"],
+          ["Cost Object", "PRODUCT-C"],
+          ["Command Status", "Accepted"],
+          ["Expected FG Units", "800"],
+          ["Observed FG Units", "760"]
+        ],
+        steps: [
+          ["Retrieve", "Production and inventory records admitted.", "PASS"],
+          ["Classify", "Production completion event identified.", "PASS"],
+          ["Structure", "Authorized conversion and expected state recorded.", "PASS"],
+          ["Route", "Execution conditions satisfied.", "BSTP"],
+          ["Execute", "Cost and inventory conversion command accepted.", "COMPLETE"],
+          ["Verify", "Observed finished-goods quantity differs from authorized state.", "FAIL"]
+        ],
+        final: "ESCALATED",
+        finalClass: "escalated",
+        geep: {
+          execution_response: "accepted",
+          verification: "failed",
+          exception: "INVENTORY_STATE_MISMATCH",
+          closure_status: "escalated"
+        }
+      }
+    }
+  }
+};
+
+let currentMode = "settlement";
+
+function setMode(mode) {
+  currentMode = mode;
+
+  document.getElementById("settlementTab").classList.toggle("active", mode === "settlement");
+  document.getElementById("transformationTab").classList.toggle("active", mode === "transformation");
+
+  const select = document.getElementById("scenarioSelect");
+  select.innerHTML = "";
+
+  const scenarios = data[mode].scenarios;
+
+  Object.keys(scenarios).forEach(key => {
+    const option = document.createElement("option");
+    option.value = key;
+    option.textContent = scenarios[key].name;
+    select.appendChild(option);
+  });
+
+  document.getElementById("scenarioTitle").textContent = data[mode].title;
+
+  renderScenario();
+}
+
+function statusClass(status) {
+  if (status === "PASS" || status === "BSTP" || status === "COMPLETE") return "pass";
+  if (status === "REVIEW" || status === "ASLTP") return "review";
+  if (status === "FAIL") return "fail";
+  return "hold";
+}
+
+function renderScenario() {
+  const key = document.getElementById("scenarioSelect").value;
+  const scenario = data[currentMode].scenarios[key];
+
+  document.getElementById("scenarioNote").textContent = scenario.note;
+
+  const objectList = document.getElementById("objectList");
+  objectList.innerHTML = "";
+
+  scenario.objects.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "object";
+    div.innerHTML = `<span>${item[0]}</span><strong>${item[1]}</strong>`;
+    objectList.appendChild(div);
+  });
+
+  const trace = document.getElementById("trace");
+  trace.innerHTML = "";
+
+  scenario.steps.forEach((step, index) => {
+    const div = document.createElement("div");
+    div.className = "step";
+
+    div.innerHTML = `
+      <div class="step-num">0${index + 1}</div>
+      <div>
+        <div class="step-title">${step[0]}</div>
+        <div class="step-desc">${step[1]}</div>
+      </div>
+      <div class="status ${statusClass(step[2])}">${step[2]}</div>
+    `;
+
+    trace.appendChild(div);
+  });
+
+  const finalState = document.getElementById("finalState");
+  finalState.className = `final ${scenario.finalClass}`;
+  finalState.textContent = scenario.final;
+
+  document.getElementById("geep").textContent =
+    "GEEP\n" + JSON.stringify(scenario.geep, null, 2);
+}
+
+setMode("settlement");
+</script>
+
+</body>
+</html>
