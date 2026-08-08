@@ -1,0 +1,88 @@
+{
+  "geep_version": "1.0",
+  "source_event_id": "BANK-2026-005021",
+  "event_type": "ar_payment",
+
+  "candidate_objects": [
+    {
+      "type": "customer",
+      "id": "C-2041",
+      "score": 0.97
+    },
+    {
+      "type": "invoice",
+      "id": "INV-9102",
+      "amount": 10000.00,
+      "currency": "CAD"
+    },
+    {
+      "type": "invoice",
+      "id": "INV-9107",
+      "amount": 10000.00,
+      "currency": "CAD"
+    }
+  ],
+
+  "evidence": {
+    "supporting": [
+      "bank_reference",
+      "customer_identifier"
+    ],
+    "conflicting": [
+      "two_open_invoices_with_identical_amount"
+    ],
+    "missing": [
+      "remittance_advice"
+    ]
+  },
+
+  "execution_policy": {
+    "rule_version": "AR-MATCH-1.0",
+    "evidence_sufficient": false,
+    "rule_determinate": false,
+    "risk_tier": "medium",
+    "materiality_trigger": false,
+    "delegated_authority": null,
+    "post_action_verifiable": true
+  },
+
+  "route": "ASLTP_REVIEW",
+
+  "escalation": {
+    "required": true,
+    "trigger": "AMBIGUOUS_INVOICE_RELATIONSHIP",
+    "unresolved_question": "Which open invoice was the payment intended to settle?"
+  },
+
+  "proposed_action": {
+    "action": "hold_for_professional_review",
+    "amount": 10000.00,
+    "customer_id": "C-2041"
+  },
+
+  "pre_state": {
+    "invoice_INV-9102_open": 10000.00,
+    "invoice_INV-9107_open": 10000.00,
+    "customer_balance": 20000.00
+  },
+
+  "verification": {
+    "status": "pending",
+    "tests": [],
+    "failed_tests": []
+  },
+
+  "human_review": {
+    "question_presented": "Two open invoices match the payment amount and no remittance advice identifies the intended obligation.",
+    "evidence_considered": [
+      "bank_reference",
+      "customer_identifier",
+      "open_invoice_population"
+    ],
+    "decision": "pending",
+    "reason": "Relationship is not sufficiently determinate for automatic execution.",
+    "reviewer_authority": "AR-REVIEWER"
+  },
+
+  "closure_status": "escalated"
+}
