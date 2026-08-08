@@ -1,0 +1,86 @@
+{
+  "geep_version": "1.0",
+  "source_event_id": "BANK-2026-004812",
+  "event_type": "ar_payment",
+
+  "candidate_objects": [
+    {
+      "type": "customer",
+      "id": "C-1042",
+      "score": 0.98
+    },
+    {
+      "type": "invoice",
+      "id": "INV-8821",
+      "amount": 12500.00,
+      "currency": "CAD"
+    }
+  ],
+
+  "evidence": {
+    "supporting": [
+      "bank_reference",
+      "remittance_advice",
+      "customer_identifier",
+      "invoice_number"
+    ],
+    "conflicting": [],
+    "missing": []
+  },
+
+  "execution_policy": {
+    "rule_version": "AR-MATCH-1.0",
+    "evidence_sufficient": true,
+    "rule_determinate": true,
+    "risk_tier": "low",
+    "materiality_trigger": false,
+    "delegated_authority": "BSTP-AR-01",
+    "post_action_verifiable": true
+  },
+
+  "route": "BSTP",
+
+  "proposed_action": {
+    "action": "apply_payment",
+    "amount": 12500.00,
+    "invoice_id": "INV-8821",
+    "customer_id": "C-1042"
+  },
+
+  "authorized_action": {
+    "action": "apply_payment",
+    "amount": 12500.00,
+    "invoice_id": "INV-8821",
+    "customer_id": "C-1042"
+  },
+
+  "pre_state": {
+    "invoice_open": 12500.00,
+    "customer_balance": 12500.00
+  },
+
+  "execution_response": {
+    "status": "accepted",
+    "message": "Payment application request accepted by simulated ERP adapter."
+  },
+
+  "observed_post_state": {
+    "invoice_open": 0.00,
+    "customer_balance": 0.00,
+    "payment_linked": true,
+    "gl_effect_recorded": true
+  },
+
+  "verification": {
+    "status": "passed",
+    "tests": [
+      "payment_link",
+      "invoice_balance",
+      "customer_balance",
+      "gl_effect"
+    ],
+    "failed_tests": []
+  },
+
+  "closure_status": "verified_closed"
+}
