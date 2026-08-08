@@ -1,0 +1,100 @@
+{
+  "geep_version": "1.0",
+  "source_event_id": "BANK-2026-004913",
+  "event_type": "ar_payment",
+
+  "candidate_objects": [
+    {
+      "type": "customer",
+      "id": "C-1188",
+      "score": 0.99
+    },
+    {
+      "type": "invoice",
+      "id": "INV-9033",
+      "amount": 8450.00,
+      "currency": "CAD"
+    }
+  ],
+
+  "evidence": {
+    "supporting": [
+      "bank_reference",
+      "remittance_advice",
+      "customer_identifier",
+      "invoice_number"
+    ],
+    "conflicting": [],
+    "missing": []
+  },
+
+  "execution_policy": {
+    "rule_version": "AR-MATCH-1.0",
+    "evidence_sufficient": true,
+    "rule_determinate": true,
+    "risk_tier": "low",
+    "materiality_trigger": false,
+    "delegated_authority": "BSTP-AR-01",
+    "post_action_verifiable": true
+  },
+
+  "route": "BSTP",
+
+  "proposed_action": {
+    "action": "apply_payment",
+    "amount": 8450.00,
+    "invoice_id": "INV-9033",
+    "customer_id": "C-1188"
+  },
+
+  "authorized_action": {
+    "action": "apply_payment",
+    "amount": 8450.00,
+    "invoice_id": "INV-9033",
+    "customer_id": "C-1188"
+  },
+
+  "pre_state": {
+    "invoice_open": 8450.00,
+    "customer_balance": 8450.00
+  },
+
+  "execution_response": {
+    "status": "accepted",
+    "http_status": 200,
+    "message": "Payment application request accepted by simulated ERP adapter."
+  },
+
+  "observed_post_state": {
+    "invoice_open": 8450.00,
+    "customer_balance": 8450.00,
+    "payment_linked": false,
+    "gl_effect_recorded": false
+  },
+
+  "verification": {
+    "status": "failed",
+    "tests": [
+      "payment_link",
+      "invoice_balance",
+      "customer_balance",
+      "gl_effect"
+    ],
+    "failed_tests": [
+      "payment_link",
+      "invoice_balance",
+      "customer_balance",
+      "gl_effect"
+    ]
+  },
+
+  "exception_history": [
+    {
+      "code": "POST_STATE_MISMATCH",
+      "description": "Execution interface returned success, but the authorized accounting state was not observed after re-read.",
+      "timestamp": "2026-08-07T22:30:00-04:00"
+    }
+  ],
+
+  "closure_status": "escalated"
+}
