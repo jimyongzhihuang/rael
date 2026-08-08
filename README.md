@@ -2,82 +2,70 @@
 
 **Relational Accounting Execution Layer**
 
-> A governed execution layer that verifies enterprise system state before automated actions are finalized.
+> A reference architecture for relationship-preserving accounting automation.
 
-**Patent pending in Canada — Application No. 3319794**
+**Patent pending in Canada — Application No. 3,319,794**
 
 ## Overview
 
-Enterprise automation often treats an API response such as `success` or `200 OK` as proof that an intended business state has actually been created. RAEL separates provisional technical acknowledgement from verified operational completion.
+The Relational Accounting Execution Layer (RAEL) is a domain-specific, AI-assisted execution architecture operating between source economic events and general-ledger representation.
 
-RAEL is designed to:
+RAEL governs how accounting relationships are:
 
-- normalize heterogeneous business events into a controlled execution format;
-- evaluate evidence, rules, confidence and authority before execution;
-- independently re-read the target system after a write operation;
-- compare the expected state with the observed state;
-- finalize, suspend, retry or escalate the action according to the verification result; and
-- preserve an auditable record of the evidence, decision and execution outcome.
+- retrieved;
+- classified;
+- structured;
+- routed;
+- executed; and
+- verified.
 
-## Core Components
+Its purpose is not merely to generate journal entries or transmit successful commands. RAEL preserves the relationship among economic events, counterparties, obligations, evidence, settlement states, authority, system actions and ledger consequences.
 
-### Canonical Event Object (CEO)
+A successful API response, interface message or posting command does not by itself establish accounting completion. Closure is permitted only after the resulting system state has been independently re-read and verified.
 
-A normalized representation of an enterprise event, its source, requested action, relevant entities and supporting evidence references.
+## Core Architectural Vocabulary
 
-### Governance Execution Evidence Package (GEEP)
+RAEL Version 1.0 distinguishes six complementary components.
 
-A structured evidence package linking the event, source records, model assessment, rule version, execution instruction and verified outcome.
+### Relationship-Preserving Accounting Automation (RPAA)
 
-### Re-read Validator
+The governing design principle requiring identifiable and verifiable links from source event and evidence through obligation, settlement, operational state and ledger consequence.
 
-An independent validation mechanism that re-reads the target system after an execution request rather than relying only on the interface's provisional success response.
+### Relational Accounting Execution Layer (RAEL)
 
-### Exception-Control Layer
+The execution architecture coordinating retrieval, classification, structuring, routing, authorized execution and post-action verification across source and accounting systems.
 
-A governed state machine that permits verified closure while routing inconsistent, unresolved or high-risk outcomes to retry, suspension or human review.
+### Bounded Straight-Through Processing (BSTP)
 
-## Initial Reference Scenario
+The execution mode permitting routine automatic processing only where evidence, rule, risk, authority and verification conditions are satisfied.
 
-The first reference implementation will model an accounts-receivable payment-posting workflow:
+### Governed Execution Evidence Package (GEEP)
+
+The machine-readable evidence artifact recording the source event, candidate relationships, supporting and conflicting evidence, applicable rule, delegated authority, action, observed state, exception history and closure outcome.
+
+### ASLTP-Informed Professional Review
+
+The structured professional interface used where relationships remain ambiguous, evidence is incomplete, risk is elevated or authority is insufficient.
+
+### Elastic Governance Layer (EGL)
+
+The verification and closure logic comparing expected and observed states and preventing closure until required conditions are satisfied.
+
+## RAEL Processing Cycle
 
 ```text
-Payment event received
-        ↓
-Evidence and rule evaluation
-        ↓
-Posting instruction sent to ERP
-        ↓
-Provisional response received
-        ↓
-Independent target-state re-read
-        ↓
-Expected and observed states compared
-        ↓
-Verified close / Retry / Suspend / Human review
-```
-
-The purpose is to demonstrate that a successful interface response is not necessarily equivalent to a completed and verified enterprise state.
-
-## Development Roadmap
-
-- **v0.1** — Execution Verification Loop and simulated ERP adapter
-- **v0.2** — Canonical Event Object
-- **v0.3** — GEEP evidence package
-- **v0.4** — Rule-based execution state machine
-- **v0.5** — Asynchronous multi-system validation
-- **v0.6** — Human exception queue and audit trail
-
-## Project Status
-
-RAEL is an early-stage reference implementation under active development. The public repository will contain a limited demonstration implementation and sample data. Production rules, proprietary methods and commercial integrations are not included unless expressly stated.
-
-## Intellectual Property Notice
-
-RAEL is the subject of Canadian Patent Application No. **3319794**. The patent application is pending and has not been granted.
-
-The names, terminology, architecture, documentation and software in this repository may also be protected by copyright, trademark and other intellectual-property rights.
-
-## License
-
-No open-source licence is granted at this stage. Unless expressly stated otherwise, all rights are reserved.
+Retrieve
+   ↓
+Classify
+   ↓
+Structure
+   ↓
+Route
+   ├── BSTP — authorized routine path
+   └── ASLTP — professional review
+             ↓
+Execute
+   ↓
+Verify
+   ↓
+Verified Closure
