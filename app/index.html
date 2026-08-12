@@ -3,570 +3,1614 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
 <title>RAEL Accounting Execution Laboratory</title>
 
+<script src="https://cdn.jsdelivr.net/pyodide/v0.27.2/full/pyodide.js"></script>
+
 <style>
-  * {
-    box-sizing: border-box;
-  }
+* {
+  box-sizing: border-box;
+}
 
-  body {
-    margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    background: #f4f7fb;
-    color: #10233f;
-  }
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f4f7fb;
+  color: #10233f;
+}
 
-  .app {
-    max-width: 1180px;
-    margin: 0 auto;
-    padding: 24px;
-  }
+.app {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 24px;
+}
 
-  .hero {
-    background: linear-gradient(135deg, #12345b, #245f9e);
-    color: white;
-    padding: 34px;
-    border-radius: 18px 18px 0 0;
-    text-align: center;
-  }
+.hero {
+  background: linear-gradient(135deg, #12345b, #245f9e);
+  color: white;
+  padding: 34px;
+  border-radius: 18px 18px 0 0;
+  text-align: center;
+}
 
-  .hero h1 {
-    margin: 0 0 10px;
-    font-size: 34px;
-  }
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: 34px;
+}
 
-  .hero p {
-    margin: 6px 0;
-    font-size: 16px;
-  }
+.hero p {
+  margin: 6px 0;
+  font-size: 16px;
+}
 
-  .privacy {
-    display: inline-block;
-    margin-top: 14px;
-    border: 1px solid rgba(255,255,255,.45);
-    padding: 7px 14px;
-    border-radius: 999px;
-    font-size: 13px;
-  }
+.badges {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
 
-  .panel {
-    background: white;
-    padding: 22px;
-    border-radius: 0 0 18px 18px;
-    box-shadow: 0 10px 30px rgba(0,0,0,.08);
+.badge {
+  border: 1px solid rgba(255,255,255,.45);
+  padding: 7px 13px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.panel {
+  background: white;
+  padding: 22px;
+  border-radius: 0 0 18px 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+}
+
+.engine-status {
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  background: #edf4ff;
+  color: #174e8c;
+}
+
+.engine-status.ready {
+  background: #e6f6eb;
+  color: #176a36;
+}
+
+.engine-status.error {
+  background: #ffe4e4;
+  color: #a11d1d;
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.tab {
+  border: 1px solid #cbd7e6;
+  background: #f7f9fc;
+  padding: 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.tab.active {
+  background: #1767d1;
+  color: white;
+  border-color: #1767d1;
+}
+
+.tab strong {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.tab span {
+  font-size: 12px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 390px 1fr;
+  gap: 18px;
+}
+
+.card {
+  border: 1px solid #d7e0eb;
+  border-radius: 14px;
+  padding: 18px;
+  background: #fff;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1767d1;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+h2 {
+  margin: 0 0 14px;
+  font-size: 23px;
+}
+
+h3 {
+  margin: 18px 0 10px;
+  font-size: 16px;
+}
+
+.field {
+  margin-bottom: 12px;
+}
+
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 5px;
+  color: #47576b;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #bcc9da;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+textarea {
+  min-height: 75px;
+  resize: vertical;
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  font-size: 13px;
+}
+
+.check-row input {
+  width: auto;
+}
+
+button.run {
+  width: 100%;
+  border: 0;
+  background: #1767d1;
+  color: white;
+  padding: 13px;
+  border-radius: 9px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+button.run:hover {
+  background: #1256b3;
+}
+
+.boundary {
+  margin: 14px 0;
+  padding: 12px;
+  background: #f3f7fc;
+  border-left: 4px solid #1767d1;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.trace {
+  display: grid;
+  gap: 9px;
+}
+
+.step {
+  border: 1px solid #dde5ef;
+  border-radius: 10px;
+  padding: 11px 13px;
+  display: grid;
+  grid-template-columns: 42px 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.step-num {
+  background: #edf4ff;
+  color: #1767d1;
+  border-radius: 8px;
+  text-align: center;
+  padding: 8px 4px;
+  font-weight: 700;
+}
+
+.step-title {
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.step-desc {
+  font-size: 12px;
+  color: #5a6778;
+}
+
+.status {
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 6px 9px;
+  white-space: nowrap;
+}
+
+.pass {
+  background: #e6f6eb;
+  color: #19723a;
+}
+
+.review {
+  background: #fff3d6;
+  color: #9a6500;
+}
+
+.fail {
+  background: #ffe4e4;
+  color: #b32323;
+}
+
+.hold {
+  background: #e9edf4;
+  color: #4e5c6e;
+}
+
+.results {
+  margin-top: 17px;
+  border-top: 1px solid #e6ebf1;
+  padding-top: 14px;
+}
+
+.result-row {
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #edf1f5;
+  font-size: 13px;
+}
+
+.result-row strong {
+  color: #405167;
+}
+
+.final {
+  margin-top: 16px;
+  border-radius: 12px;
+  padding: 17px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.final.closed {
+  background: #e6f6eb;
+  color: #176a36;
+}
+
+.final.reviewing {
+  background: #fff3d6;
+  color: #8c5c00;
+}
+
+.final.escalated {
+  background: #ffe4e4;
+  color: #a11d1d;
+}
+
+.geep {
+  margin-top: 16px;
+  background: #0f1f33;
+  color: #dbe9f8;
+  padding: 15px;
+  border-radius: 10px;
+  font-family: monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+.footer-note {
+  margin-top: 20px;
+  font-size: 12px;
+  color: #66758a;
+  text-align: center;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 850px) {
+  .layout {
+    grid-template-columns: 1fr;
   }
 
   .tabs {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 22px;
+    grid-template-columns: 1fr;
   }
-
-  .tab {
-    border: 1px solid #cbd7e6;
-    background: #f7f9fc;
-    padding: 16px;
-    border-radius: 12px;
-    cursor: pointer;
-    text-align: left;
-  }
-
-  .tab.active {
-    background: #1767d1;
-    color: white;
-    border-color: #1767d1;
-  }
-
-  .tab strong {
-    display: block;
-    font-size: 17px;
-    margin-bottom: 5px;
-  }
-
-  .layout {
-    display: grid;
-    grid-template-columns: 340px 1fr;
-    gap: 18px;
-  }
-
-  .card {
-    border: 1px solid #d7e0eb;
-    border-radius: 14px;
-    padding: 18px;
-    background: #fff;
-  }
-
-  .label {
-    font-size: 12px;
-    font-weight: 700;
-    color: #1767d1;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-
-  h2 {
-    margin: 0 0 14px;
-    font-size: 24px;
-  }
-
-  select {
-    width: 100%;
-    padding: 11px;
-    border: 1px solid #bcc9da;
-    border-radius: 8px;
-    font-size: 15px;
-  }
-
-  .scenario-note {
-    margin-top: 14px;
-    padding: 13px;
-    background: #f3f7fc;
-    border-left: 4px solid #1767d1;
-    font-size: 14px;
-    line-height: 1.45;
-  }
-
-  .object-list {
-    margin-top: 16px;
-  }
-
-  .object {
-    display: flex;
-    justify-content: space-between;
-    padding: 9px 0;
-    border-bottom: 1px solid #edf1f5;
-    font-size: 14px;
-  }
-
-  .trace {
-    display: grid;
-    gap: 10px;
-  }
-
-  .step {
-    border: 1px solid #dde5ef;
-    border-radius: 10px;
-    padding: 12px 14px;
-    display: grid;
-    grid-template-columns: 44px 1fr auto;
-    gap: 10px;
-    align-items: center;
-  }
-
-  .step-num {
-    background: #edf4ff;
-    color: #1767d1;
-    border-radius: 8px;
-    text-align: center;
-    padding: 8px 4px;
-    font-weight: 700;
-  }
-
-  .step-title {
-    font-weight: 700;
-    margin-bottom: 3px;
-  }
-
-  .step-desc {
-    font-size: 13px;
-    color: #5a6778;
-  }
-
-  .status {
-    font-size: 11px;
-    font-weight: 700;
-    border-radius: 999px;
-    padding: 6px 9px;
-    white-space: nowrap;
-  }
-
-  .pass {
-    background: #e6f6eb;
-    color: #19723a;
-  }
-
-  .review {
-    background: #fff3d6;
-    color: #9a6500;
-  }
-
-  .fail {
-    background: #ffe4e4;
-    color: #b32323;
-  }
-
-  .hold {
-    background: #e9edf4;
-    color: #4e5c6e;
-  }
-
-  .final {
-    margin-top: 16px;
-    border-radius: 12px;
-    padding: 18px;
-    text-align: center;
-    font-weight: 800;
-    font-size: 20px;
-  }
-
-  .final.closed {
-    background: #e6f6eb;
-    color: #176a36;
-  }
-
-  .final.reviewing {
-    background: #fff3d6;
-    color: #8c5c00;
-  }
-
-  .final.escalated {
-    background: #ffe4e4;
-    color: #a11d1d;
-  }
-
-  .geep {
-    margin-top: 16px;
-    background: #0f1f33;
-    color: #dbe9f8;
-    padding: 15px;
-    border-radius: 10px;
-    font-family: monospace;
-    font-size: 12px;
-    white-space: pre-wrap;
-  }
-
-  .footer-note {
-    margin-top: 20px;
-    font-size: 12px;
-    color: #66758a;
-    text-align: center;
-  }
-
-  @media (max-width: 800px) {
-    .layout {
-      grid-template-columns: 1fr;
-    }
-
-    .tabs {
-      grid-template-columns: 1fr;
-    }
-  }
+}
 </style>
 </head>
 
 <body>
+
 <div class="app">
 
   <div class="hero">
     <h1>RAEL Accounting Execution Laboratory</h1>
-    <p>Governed Automation for Relationship-Preserving Accounting</p>
-    <div class="privacy">Browser-local prototype · Synthetic data only · No data transmitted</div>
+
+    <p>
+      Relational Accounting Execution Layer
+    </p>
+
+    <p>
+      Governed execution across accounting, financial-recognition,
+      and administrative-state boundaries
+    </p>
+
+    <div class="badges">
+      <div class="badge">Python Engine</div>
+      <div class="badge">Browser-Local Prototype</div>
+      <div class="badge">Synthetic Data Only</div>
+      <div class="badge">Retrieve → Classify → Structure → Route → Execute → Verify</div>
+    </div>
   </div>
 
   <div class="panel">
 
+    <div id="engineStatus" class="engine-status">
+      Loading RAEL Python engine…
+    </div>
+
     <div class="tabs">
-      <button id="settlementTab" class="tab active" onclick="setMode('settlement')">
-        <strong>Settlement Relationships</strong>
-        Accounts-Receivable Payment Matching
+
+      <button
+        id="settlementTab"
+        class="tab active"
+        onclick="setMode('settlement')"
+      >
+        <strong>1. Settlement</strong>
+        <span>Operational Relationship → Accounting State</span>
       </button>
 
-      <button id="transformationTab" class="tab" onclick="setMode('transformation')">
-        <strong>Transformation Relationships</strong>
-        Production-Cost and Inventory Conversion
+      <button
+        id="costTab"
+        class="tab"
+        onclick="setMode('cost')"
+      >
+        <strong>2. Cost-to-Financial State</strong>
+        <span>Internal Cost State → Financially Recognizable State</span>
       </button>
+
+      <button
+        id="netWorthTab"
+        class="tab"
+        onclick="setMode('networth')"
+      >
+        <strong>3. Net-Worth Method</strong>
+        <span>Financial Observation → Administrative Tax State</span>
+      </button>
+
     </div>
 
     <div class="layout">
 
       <div class="card">
-        <div class="label">Scenario</div>
-        <h2 id="scenarioTitle">Settlement Execution</h2>
 
-        <select id="scenarioSelect" onchange="renderScenario()"></select>
+        <div class="label">Input</div>
 
-        <div id="scenarioNote" class="scenario-note"></div>
+        <div id="settlementForm">
 
-        <div class="object-list" id="objectList"></div>
+          <h2>AR Payment Matching</h2>
+
+          <div class="boundary">
+            Determine whether an observed payment is relationally,
+            evidentially and authoritatively fit to settle a specific
+            accounting obligation.
+          </div>
+
+          <div class="field">
+            <label>Customer ID</label>
+            <input id="sCustomer" value="C-100" />
+          </div>
+
+          <div class="field">
+            <label>Invoice Customer ID</label>
+            <input id="sInvoiceCustomer" value="C-100" />
+          </div>
+
+          <div class="field">
+            <label>Payment Amount</label>
+            <input id="sAmount" type="number" value="12500" />
+          </div>
+
+          <div class="field">
+            <label>Invoice Outstanding Balance</label>
+            <input id="sBalance" type="number" value="12500" />
+          </div>
+
+          <div class="field">
+            <label>Payment Invoice Reference</label>
+            <input id="sReference" value="INV-100" />
+          </div>
+
+          <div class="field">
+            <label>Invoice ID</label>
+            <input id="sInvoiceId" value="INV-100" />
+          </div>
+
+          <div class="check-row">
+            <input id="sRemittance" type="checkbox" checked />
+            <label for="sRemittance">Remittance evidence available</label>
+          </div>
+
+          <div class="check-row">
+            <input id="sDuplicate" type="checkbox" />
+            <label for="sDuplicate">Duplicate risk detected</label>
+          </div>
+
+          <div class="check-row">
+            <input id="sPeriod" type="checkbox" />
+            <label for="sPeriod">Period conflict detected</label>
+          </div>
+
+          <div class="check-row">
+            <input id="sAuthority" type="checkbox" checked />
+            <label for="sAuthority">Delegated authority enabled</label>
+          </div>
+
+          <div class="field">
+            <label>Delegated Execution Limit</label>
+            <input id="sLimit" type="number" value="20000" />
+          </div>
+
+          <div class="check-row">
+            <input id="sFailure" type="checkbox" />
+            <label for="sFailure">Simulate post-execution state failure</label>
+          </div>
+
+          <button class="run" onclick="runSettlement()">
+            Evaluate Settlement
+          </button>
+
+        </div>
+
+        <div id="costForm" class="hidden">
+
+          <h2>Cost-State Transition</h2>
+
+          <div class="boundary">
+            RAEL does not calculate production cost here.
+            It determines whether an internally generated cost state
+            is fit to cross the financial-recognition boundary.
+          </div>
+
+          <div class="field">
+            <label>Cost Object</label>
+            <input id="cObject" value="PRODUCT-A" />
+          </div>
+
+          <div class="field">
+            <label>Internal Cost Value</label>
+            <input id="cValue" type="number" value="85000" />
+          </div>
+
+          <h3>Relational Validity</h3>
+
+          <div class="check-row">
+            <input id="cProductionOrder" type="checkbox" checked />
+            <label>Production order valid</label>
+          </div>
+
+          <div class="check-row">
+            <input id="cCostObject" type="checkbox" checked />
+            <label>Cost object valid</label>
+          </div>
+
+          <div class="check-row">
+            <input id="cMaterials" type="checkbox" checked />
+            <label>Material relationship valid</label>
+          </div>
+
+          <div class="check-row">
+            <input id="cLabour" type="checkbox" checked />
+            <label>Labour relationship valid</label>
+          </div>
+
+          <div class="check-row">
+            <input id="cOverhead" type="checkbox" checked />
+            <label>Overhead relationship valid</label>
+          </div>
+
+          <h3>Financial Recognition</h3>
+
+          <div class="check-row">
+            <input id="cAccountingRule" type="checkbox" checked />
+            <label>Accounting recognition rule satisfied</label>
+          </div>
+
+          <div class="check-row">
+            <input id="cComplete" type="checkbox" checked />
+            <label>Production complete</label>
+          </div>
+
+          <div class="check-row">
+            <input id="cPeriod" type="checkbox" checked />
+            <label>Recognition period valid</label>
+          </div>
+
+          <h3>Evidence</h3>
+
+          <div class="check-row">
+            <input id="cSource" type="checkbox" checked />
+            <label>Source cost records available</label>
+          </div>
+
+          <div class="check-row">
+            <input id="cProductionEvidence" type="checkbox" checked />
+            <label>Production evidence available</label>
+          </div>
+
+          <div class="check-row">
+            <input id="cAllocationEvidence" type="checkbox" checked />
+            <label>Allocation evidence available</label>
+          </div>
+
+          <h3>Authority</h3>
+
+          <div class="check-row">
+            <input id="cAuthority" type="checkbox" checked />
+            <label>Recognition authority enabled</label>
+          </div>
+
+          <div class="field">
+            <label>Recognition Limit</label>
+            <input id="cLimit" type="number" value="100000" />
+          </div>
+
+          <div class="check-row">
+            <input id="cFailure" type="checkbox" />
+            <label>Simulate failed financial-state transition</label>
+          </div>
+
+          <button class="run" onclick="runCost()">
+            Evaluate Cost-State Transition
+          </button>
+
+        </div>
+
+        <div id="netWorthForm" class="hidden">
+
+          <h2>Net-Worth Reconciliation</h2>
+
+          <div class="boundary">
+            An item may be numerically present in a net-worth reconstruction
+            without yet being relationally established as an administrative fact.
+          </div>
+
+          <div class="field">
+            <label>Observed Item ID</label>
+            <input id="nItemId" value="NW-001" />
+          </div>
+
+          <div class="field">
+            <label>Observed Amount</label>
+            <input id="nAmount" type="number" value="185000" />
+          </div>
+
+          <div class="field">
+            <label>Observed Type</label>
+            <select id="nType">
+              <option>BANK_DEPOSIT</option>
+              <option>PROPERTY</option>
+              <option>LOAN_BALANCE</option>
+              <option>SHAREHOLDER_MOVEMENT</option>
+              <option>OTHER_FINANCIAL_ITEM</option>
+            </select>
+          </div>
+
+          <div class="check-row">
+            <input id="nResponse" type="checkbox" checked />
+            <label>Taxpayer response received</label>
+          </div>
+
+          <div class="field">
+            <label>Taxpayer Explanation</label>
+            <textarea id="nExplanation">Transfer between taxpayer-owned bank accounts</textarea>
+          </div>
+
+          <div class="field">
+            <label>Candidate Relationship</label>
+
+            <select id="nRelationship">
+              <option value="OWN_ACCOUNT_TRANSFER">Own-account transfer</option>
+              <option value="LOAN_PROCEEDS">Loan proceeds</option>
+              <option value="GIFT_OR_INHERITANCE">Gift or inheritance</option>
+              <option value="PROPERTY_SALE_PROCEEDS">Property sale proceeds</option>
+              <option value="RETURN_OF_CAPITAL">Return of capital</option>
+
+              <option value="BUSINESS_RECEIPT">Business receipt</option>
+              <option value="EMPLOYMENT_INCOME">Employment income</option>
+              <option value="RENTAL_RECEIPT">Rental receipt</option>
+              <option value="SHAREHOLDER_BENEFIT">Shareholder benefit</option>
+              <option value="OTHER_TAXABLE_RECEIPT">Other taxable receipt</option>
+
+              <option value="OTHER">Other / uncertain</option>
+            </select>
+          </div>
+
+          <h3>Evidence</h3>
+
+          <div class="check-row">
+            <input id="nPrimary" type="checkbox" checked />
+            <label>Primary document available</label>
+          </div>
+
+          <div class="check-row">
+            <input id="nTrace" type="checkbox" checked />
+            <label>Source tracing available</label>
+          </div>
+
+          <div class="check-row">
+            <input id="nCounterparty" type="checkbox" />
+            <label>Counterparty support available</label>
+          </div>
+
+          <div class="check-row">
+            <input id="nConflict" type="checkbox" />
+            <label>Contradictory evidence detected</label>
+          </div>
+
+          <h3>Administrative Authority</h3>
+
+          <div class="check-row">
+            <input id="nAuthority" type="checkbox" checked />
+            <label>Authority enabled</label>
+          </div>
+
+          <button class="run" onclick="runNetWorth()">
+            Evaluate Net-Worth Item
+          </button>
+
+        </div>
+
       </div>
 
+
       <div class="card">
+
         <div class="label">RAEL Execution Trace</div>
-        <h2 id="traceTitle">Governed Processing</h2>
+        <h2 id="outputTitle">Governed Processing</h2>
 
         <div id="trace" class="trace"></div>
 
-        <div id="finalState" class="final"></div>
+        <div id="results" class="results"></div>
 
-        <div id="geep" class="geep"></div>
+        <div id="finalState" class="final reviewing">
+          READY FOR INPUT
+        </div>
+
+        <div id="geep" class="geep">
+{
+  "status": "awaiting_execution"
+}
+        </div>
+
       </div>
 
     </div>
 
     <div class="footer-note">
-      Retrieve → Classify → Structure → Route → Execute → Verify
+      RAEL does not treat confidence as authority,
+      execution as completion,
+      or numerical agreement as relational closure.
     </div>
 
   </div>
+
 </div>
 
+
 <script>
-const data = {
-  settlement: {
-    title: "Settlement Execution",
-    scenarios: {
-      exact: {
-        name: "Exact Match",
-        note: "Payment, customer, invoice, amount and evidence align. Delegated BSTP authority is available and the resulting state is independently verifiable.",
-        objects: [
-          ["Payment", "CAD 12,500"],
-          ["Customer", "C-1042"],
-          ["Invoice", "INV-8821"],
-          ["Evidence", "Complete"],
-          ["Authority", "BSTP-AR-01"]
-        ],
-        steps: [
-          ["Retrieve", "Payment, remittance and open invoice records admitted.", "PASS"],
-          ["Classify", "Customer payment and invoice candidates identified.", "PASS"],
-          ["Structure", "GEEP assembled with complete supporting evidence.", "PASS"],
-          ["Route", "BSTP conditions satisfied.", "BSTP"],
-          ["Execute", "Payment applied to INV-8821.", "COMPLETE"],
-          ["Verify", "Invoice balance, customer balance and GL effect confirmed.", "PASS"]
-        ],
-        final: "VERIFIED CLOSED",
-        finalClass: "closed",
-        geep: {
-          route: "BSTP",
-          verification: "passed",
-          closure_status: "verified_closed"
-        }
-      },
-
-      ambiguous: {
-        name: "Ambiguous Match",
-        note: "A likely customer is identified, but two invoices match the payment amount and remittance evidence does not resolve the intended obligation.",
-        objects: [
-          ["Payment", "CAD 10,000"],
-          ["Customer", "C-2041"],
-          ["Invoice Candidate 1", "INV-9102"],
-          ["Invoice Candidate 2", "INV-9107"],
-          ["Missing Evidence", "Remittance advice"]
-        ],
-        steps: [
-          ["Retrieve", "Payment and open invoice records admitted.", "PASS"],
-          ["Classify", "High-confidence customer relationship identified.", "PASS"],
-          ["Structure", "Competing invoice relationships remain visible.", "REVIEW"],
-          ["Route", "Evidence and rule determinacy conditions not satisfied.", "ASLTP"],
-          ["Execute", "No accounting action permitted before review.", "HELD"],
-          ["Verify", "Verification deferred because execution has not occurred.", "HELD"]
-        ],
-        final: "ASLTP REVIEW",
-        finalClass: "reviewing",
-        geep: {
-          route: "ASLTP_REVIEW",
-          unresolved_question: "Which invoice was intended to be settled?",
-          closure_status: "escalated"
-        }
-      },
-
-      failure: {
-        name: "Verification Failure",
-        note: "The execution interface returns technical success, but RAEL re-reads the accounting system and finds that the intended post-execution state was not created.",
-        objects: [
-          ["Payment", "CAD 8,450"],
-          ["Customer", "C-1188"],
-          ["Invoice", "INV-9033"],
-          ["Interface Response", "200 OK"],
-          ["Observed Invoice Balance", "CAD 8,450"]
-        ],
-        steps: [
-          ["Retrieve", "Payment and invoice records admitted.", "PASS"],
-          ["Classify", "Payment relationship identified.", "PASS"],
-          ["Structure", "Evidence and execution conditions satisfied.", "PASS"],
-          ["Route", "BSTP route authorized.", "BSTP"],
-          ["Execute", "ERP interface returns successful acknowledgement.", "COMPLETE"],
-          ["Verify", "Invoice balance and GL effect do not reflect the authorized action.", "FAIL"]
-        ],
-        final: "ESCALATED",
-        finalClass: "escalated",
-        geep: {
-          execution_response: "200 OK",
-          verification: "failed",
-          exception: "POST_STATE_MISMATCH",
-          closure_status: "escalated"
-        }
-      }
-    }
-  },
-
-  transformation: {
-    title: "Transformation Execution",
-    scenarios: {
-      normal: {
-        name: "Normal Production Conversion",
-        note: "Materials, labour and manufacturing overhead are linked to the authorized production order and cost object. Completed production is verified before WIP is transferred to finished goods.",
-        objects: [
-          ["Production Order", "PO-260701"],
-          ["Cost Object", "PRODUCT-A"],
-          ["Direct Materials", "CAD 62,400"],
-          ["Units Completed", "1,000"],
-          ["State Transition", "WIP → Finished Goods"]
-        ],
-        steps: [
-          ["Retrieve", "Production, material, labour and completion records admitted.", "PASS"],
-          ["Classify", "Cost inputs and production relationships identified.", "PASS"],
-          ["Structure", "Cost inputs, allocation rule and inventory transition structured.", "PASS"],
-          ["Route", "Authorized costing and conversion conditions satisfied.", "BSTP"],
-          ["Execute", "Verified production cost transferred from WIP to finished goods.", "COMPLETE"],
-          ["Verify", "Cost object, unit cost, inventory quantity, WIP and GL effect confirmed.", "PASS"]
-        ],
-        final: "VERIFIED CLOSED",
-        finalClass: "closed",
-        geep: {
-          route: "BSTP",
-          inventory_transition: "work_in_process_to_finished_goods",
-          verification: "passed",
-          closure_status: "verified_closed"
-        }
-      },
-
-      conflict: {
-        name: "Allocation Conflict",
-        note: "Production activity is identified, but the overhead allocation basis conflicts with the authorized costing rule. RAEL prevents automatic conversion.",
-        objects: [
-          ["Production Order", "PO-260811"],
-          ["Cost Object", "PRODUCT-B"],
-          ["Overhead Rule", "Conflict detected"],
-          ["Cost Driver", "Unresolved"],
-          ["Authority", "Professional determination required"]
-        ],
-        steps: [
-          ["Retrieve", "Production and costing records admitted.", "PASS"],
-          ["Classify", "Materials, labour and overhead inputs identified.", "PASS"],
-          ["Structure", "Conflicting allocation evidence preserved.", "REVIEW"],
-          ["Route", "Authorized costing rule cannot be established.", "ASLTP"],
-          ["Execute", "Inventory conversion held pending professional review.", "HELD"],
-          ["Verify", "No closure permitted before authorized allocation is determined.", "HELD"]
-        ],
-        final: "ASLTP REVIEW",
-        finalClass: "reviewing",
-        geep: {
-          route: "ASLTP_REVIEW",
-          unresolved_question: "Which authorized overhead allocation rule applies?",
-          closure_status: "escalated"
-        }
-      },
-
-      mismatch: {
-        name: "Inventory-State Mismatch",
-        note: "The system accepts the production-cost transfer, but the observed finished-goods quantity, WIP balance or GL effect differs from the authorized conversion.",
-        objects: [
-          ["Production Order", "PO-260815"],
-          ["Cost Object", "PRODUCT-C"],
-          ["Command Status", "Accepted"],
-          ["Expected FG Units", "800"],
-          ["Observed FG Units", "760"]
-        ],
-        steps: [
-          ["Retrieve", "Production and inventory records admitted.", "PASS"],
-          ["Classify", "Production completion event identified.", "PASS"],
-          ["Structure", "Authorized conversion and expected state recorded.", "PASS"],
-          ["Route", "Execution conditions satisfied.", "BSTP"],
-          ["Execute", "Cost and inventory conversion command accepted.", "COMPLETE"],
-          ["Verify", "Observed finished-goods quantity differs from authorized state.", "FAIL"]
-        ],
-        final: "ESCALATED",
-        finalClass: "escalated",
-        geep: {
-          execution_response: "accepted",
-          verification: "failed",
-          exception: "INVENTORY_STATE_MISMATCH",
-          closure_status: "escalated"
-        }
-      }
-    }
-  }
-};
 
 let currentMode = "settlement";
+let pyodide = null;
+let pythonReady = false;
+
+
+/* --------------------------------------------------------
+   MODE
+-------------------------------------------------------- */
 
 function setMode(mode) {
+
   currentMode = mode;
 
-  document.getElementById("settlementTab").classList.toggle("active", mode === "settlement");
-  document.getElementById("transformationTab").classList.toggle("active", mode === "transformation");
+  document.getElementById("settlementTab").classList.remove("active");
+  document.getElementById("costTab").classList.remove("active");
+  document.getElementById("netWorthTab").classList.remove("active");
 
-  const select = document.getElementById("scenarioSelect");
-  select.innerHTML = "";
+  document.getElementById("settlementForm").classList.add("hidden");
+  document.getElementById("costForm").classList.add("hidden");
+  document.getElementById("netWorthForm").classList.add("hidden");
 
-  const scenarios = data[mode].scenarios;
+  if (mode === "settlement") {
+    document.getElementById("settlementTab").classList.add("active");
+    document.getElementById("settlementForm").classList.remove("hidden");
+  }
 
-  Object.keys(scenarios).forEach(key => {
-    const option = document.createElement("option");
-    option.value = key;
-    option.textContent = scenarios[key].name;
-    select.appendChild(option);
-  });
+  if (mode === "cost") {
+    document.getElementById("costTab").classList.add("active");
+    document.getElementById("costForm").classList.remove("hidden");
+  }
 
-  document.getElementById("scenarioTitle").textContent = data[mode].title;
+  if (mode === "networth") {
+    document.getElementById("netWorthTab").classList.add("active");
+    document.getElementById("netWorthForm").classList.remove("hidden");
+  }
 
-  renderScenario();
+  clearOutput();
 }
 
+
+/* --------------------------------------------------------
+   PYTHON INITIALIZATION
+-------------------------------------------------------- */
+
+async function loadText(url) {
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error("Unable to load " + url);
+  }
+
+  return await response.text();
+}
+
+
+async function initializePython() {
+
+  const status = document.getElementById("engineStatus");
+
+  try {
+
+    pyodide = await loadPyodide();
+
+    const base =
+      "https://raw.githubusercontent.com/jimyongzhihuang/rael/main/";
+
+    const files = {
+      "/home/pyodide/core/__init__.py": "",
+      "/home/pyodide/core/rael_engine.py":
+        await loadText(base + "core/rael_engine.py"),
+
+      "/home/pyodide/modules/__init__.py": "",
+      "/home/pyodide/modules/settlement.py":
+        await loadText(base + "modules/settlement.py"),
+
+      "/home/pyodide/modules/cost_state_transition.py":
+        await loadText(base + "modules/cost_state_transition.py"),
+
+      "/home/pyodide/modules/net_worth_state.py":
+        await loadText(base + "modules/net_worth_state.py")
+    };
+
+    pyodide.FS.mkdirTree("/home/pyodide/core");
+    pyodide.FS.mkdirTree("/home/pyodide/modules");
+
+    for (const [path, content] of Object.entries(files)) {
+      pyodide.FS.writeFile(path, content);
+    }
+
+    await pyodide.runPythonAsync(`
+import sys
+sys.path.insert(0, "/home/pyodide")
+
+from modules.settlement import SettlementEngine
+from modules.cost_state_transition import CostStateTransitionEngine
+from modules.net_worth_state import NetWorthStateEngine
+`);
+
+    pythonReady = true;
+
+    status.textContent =
+      "RAEL Python engine loaded successfully · Actual repository modules active";
+
+    status.classList.add("ready");
+
+  } catch (error) {
+
+    console.error(error);
+
+    status.textContent =
+      "RAEL Python engine could not be loaded: " + error.message;
+
+    status.classList.add("error");
+  }
+}
+
+
+/* --------------------------------------------------------
+   TRACE
+-------------------------------------------------------- */
+
 function statusClass(status) {
-  if (status === "PASS" || status === "BSTP" || status === "COMPLETE") return "pass";
-  if (status === "REVIEW" || status === "ASLTP") return "review";
-  if (status === "FAIL") return "fail";
+
+  if (
+    status === "PASS" ||
+    status === "BSTP" ||
+    status === "AUTHORIZED" ||
+    status === "EXECUTED" ||
+    status === "VERIFIED"
+  ) {
+    return "pass";
+  }
+
+  if (
+    status === "REVIEW" ||
+    status === "ASLTP" ||
+    status === "PARTIAL"
+  ) {
+    return "review";
+  }
+
+  if (
+    status === "FAIL" ||
+    status === "CONFLICT"
+  ) {
+    return "fail";
+  }
+
   return "hold";
 }
 
-function renderScenario() {
-  const key = document.getElementById("scenarioSelect").value;
-  const scenario = data[currentMode].scenarios[key];
 
-  document.getElementById("scenarioNote").textContent = scenario.note;
+function renderTrace(steps) {
 
-  const objectList = document.getElementById("objectList");
-  objectList.innerHTML = "";
+  const box = document.getElementById("trace");
 
-  scenario.objects.forEach(item => {
-    const div = document.createElement("div");
-    div.className = "object";
-    div.innerHTML = `<span>${item[0]}</span><strong>${item[1]}</strong>`;
-    objectList.appendChild(div);
-  });
+  box.innerHTML = "";
 
-  const trace = document.getElementById("trace");
-  trace.innerHTML = "";
+  steps.forEach((step, index) => {
 
-  scenario.steps.forEach((step, index) => {
-    const div = document.createElement("div");
-    div.className = "step";
+    const row = document.createElement("div");
 
-    div.innerHTML = `
-      <div class="step-num">0${index + 1}</div>
+    row.className = "step";
+
+    row.innerHTML = `
+      <div class="step-num">${index + 1}</div>
+
       <div>
-        <div class="step-title">${step[0]}</div>
-        <div class="step-desc">${step[1]}</div>
+        <div class="step-title">${step.title}</div>
+        <div class="step-desc">${step.description}</div>
       </div>
-      <div class="status ${statusClass(step[2])}">${step[2]}</div>
+
+      <div class="status ${statusClass(step.status)}">
+        ${step.status}
+      </div>
     `;
 
-    trace.appendChild(div);
+    box.appendChild(row);
   });
-
-  const finalState = document.getElementById("finalState");
-  finalState.className = `final ${scenario.finalClass}`;
-  finalState.textContent = scenario.final;
-
-  document.getElementById("geep").textContent =
-    "GEEP\n" + JSON.stringify(scenario.geep, null, 2);
 }
 
-setMode("settlement");
+
+function renderResults(rows) {
+
+  const box = document.getElementById("results");
+
+  box.innerHTML = "";
+
+  rows.forEach(row => {
+
+    const div = document.createElement("div");
+
+    div.className = "result-row";
+
+    div.innerHTML = `
+      <strong>${row[0]}</strong>
+      <span>${row[1]}</span>
+    `;
+
+    box.appendChild(div);
+  });
+}
+
+
+function setFinal(text, type) {
+
+  const box = document.getElementById("finalState");
+
+  box.textContent = text;
+
+  box.className = "final " + type;
+}
+
+
+function setGEEP(obj) {
+
+  document.getElementById("geep").textContent =
+    JSON.stringify(obj, null, 2);
+}
+
+
+function clearOutput() {
+
+  document.getElementById("trace").innerHTML = "";
+  document.getElementById("results").innerHTML = "";
+
+  setFinal("READY FOR INPUT", "reviewing");
+
+  setGEEP({
+    status: "awaiting_execution"
+  });
+}
+
+
+function ensurePython() {
+
+  if (!pythonReady) {
+
+    alert(
+      "The RAEL Python engine is still loading. Please wait a moment and try again."
+    );
+
+    return false;
+  }
+
+  return true;
+}
+
+
+/* --------------------------------------------------------
+   SETTLEMENT
+-------------------------------------------------------- */
+
+async function runSettlement() {
+
+  if (!ensurePython()) return;
+
+  const input = {
+
+    payment: {
+      customer_id:
+        document.getElementById("sCustomer").value,
+
+      amount:
+        Number(document.getElementById("sAmount").value),
+
+      invoice_reference:
+        document.getElementById("sReference").value
+    },
+
+    invoice: {
+      customer_id:
+        document.getElementById("sInvoiceCustomer").value,
+
+      invoice_id:
+        document.getElementById("sInvoiceId").value,
+
+      outstanding_balance:
+        Number(document.getElementById("sBalance").value)
+    },
+
+    evidence: {
+      remittance_available:
+        document.getElementById("sRemittance").checked,
+
+      duplicate_detected:
+        document.getElementById("sDuplicate").checked,
+
+      period_conflict:
+        document.getElementById("sPeriod").checked
+    },
+
+    authority: {
+      enabled:
+        document.getElementById("sAuthority").checked,
+
+      delegated_limit:
+        Number(document.getElementById("sLimit").value)
+    },
+
+    simulate_failure:
+      document.getElementById("sFailure").checked
+  };
+
+
+  pyodide.globals.set(
+    "input_json",
+    JSON.stringify(input)
+  );
+
+
+  const outputJSON =
+    await pyodide.runPythonAsync(`
+
+import json
+
+data = json.loads(input_json)
+
+engine = SettlementEngine()
+
+decision = engine.evaluate(
+    payment=data["payment"],
+    invoice=data["invoice"],
+    evidence=data["evidence"],
+    authority=data["authority"],
+)
+
+decision = engine.simulate_execution(
+    invoice=data["invoice"],
+    payment=data["payment"],
+    decision=decision,
+    simulate_failure=data["simulate_failure"],
+)
+
+json.dumps(decision.to_dict())
+`);
+
+
+  const result = JSON.parse(outputJSON);
+
+
+  renderTrace([
+    {
+      title: "Retrieve",
+      description:
+        "Payment, invoice and remittance-related evidence admitted.",
+      status: "PASS"
+    },
+
+    {
+      title: "Classify",
+      description:
+        "Customer, invoice and settlement candidate relationship evaluated.",
+      status:
+        result.relationship_valid ? "PASS" : "REVIEW"
+    },
+
+    {
+      title: "Structure",
+      description:
+        "Relationship, evidence and authority conditions structured for governed execution.",
+      status:
+        result.evidence_sufficient ? "PASS" : "REVIEW"
+    },
+
+    {
+      title: "Route",
+      description:
+        "RAEL determines whether bounded straight-through execution is permitted.",
+      status:
+        result.route === "BSTP" ? "BSTP" : "ASLTP"
+    },
+
+    {
+      title: "Execute",
+      description:
+        result.execution_status === "EXECUTED"
+        ? "Authorized payment application executed."
+        : result.execution_status === "AUTHORIZED"
+        ? "Execution authorized."
+        : "Accounting action held pending review.",
+      status:
+        result.execution_status
+    },
+
+    {
+      title: "Verify",
+      description:
+        "Observed post-execution accounting state compared with expected state.",
+      status:
+        result.verification_status === "PASSED"
+        ? "PASS"
+        : result.verification_status === "FAILED"
+        ? "FAIL"
+        : "HELD"
+    }
+  ]);
+
+
+  renderResults([
+    ["Module", result.module],
+    ["Confidence", result.confidence.toFixed(2)],
+    ["Relationship Valid", String(result.relationship_valid)],
+    ["Evidence Sufficient", String(result.evidence_sufficient)],
+    ["Authority Granted", String(result.authority_granted)],
+    ["Route", result.route],
+    ["Execution Status", result.execution_status],
+    ["Verification Status", result.verification_status],
+    ["Closure Status", result.closure_status],
+    ["Reasons", result.reasons.length ? result.reasons.join(", ") : "None"]
+  ]);
+
+
+  if (result.closure_status === "VERIFIED_CLOSED") {
+    setFinal("VERIFIED CLOSED", "closed");
+  }
+  else if (result.closure_status === "ESCALATED") {
+    setFinal("ESCALATED", "escalated");
+  }
+  else {
+    setFinal("PROFESSIONAL REVIEW REQUIRED", "reviewing");
+  }
+
+
+  setGEEP({
+    module: result.module,
+    relationship_valid: result.relationship_valid,
+    evidence_sufficient: result.evidence_sufficient,
+    authority_granted: result.authority_granted,
+    route: result.route,
+    execution_status: result.execution_status,
+    verification_status: result.verification_status,
+    closure_status: result.closure_status,
+    reasons: result.reasons
+  });
+}
+
+
+/* --------------------------------------------------------
+   COST STATE
+-------------------------------------------------------- */
+
+async function runCost() {
+
+  if (!ensurePython()) return;
+
+  const input = {
+
+    cost_state: {
+      production_order_valid:
+        document.getElementById("cProductionOrder").checked,
+
+      cost_object_valid:
+        document.getElementById("cCostObject").checked,
+
+      material_relationship_valid:
+        document.getElementById("cMaterials").checked,
+
+      labour_relationship_valid:
+        document.getElementById("cLabour").checked,
+
+      overhead_relationship_valid:
+        document.getElementById("cOverhead").checked,
+
+      internal_cost_value:
+        Number(document.getElementById("cValue").value),
+
+      cost_object:
+        document.getElementById("cObject").value
+    },
+
+    recognition: {
+      accounting_rule_valid:
+        document.getElementById("cAccountingRule").checked,
+
+      production_complete:
+        document.getElementById("cComplete").checked,
+
+      recognition_period_valid:
+        document.getElementById("cPeriod").checked
+    },
+
+    evidence: {
+      source_cost_record_available:
+        document.getElementById("cSource").checked,
+
+      production_evidence_available:
+        document.getElementById("cProductionEvidence").checked,
+
+      allocation_evidence_available:
+        document.getElementById("cAllocationEvidence").checked
+    },
+
+    authority: {
+      enabled:
+        document.getElementById("cAuthority").checked,
+
+      recognition_limit:
+        Number(document.getElementById("cLimit").value)
+    },
+
+    simulate_failure:
+      document.getElementById("cFailure").checked
+  };
+
+
+  pyodide.globals.set(
+    "input_json",
+    JSON.stringify(input)
+  );
+
+
+  const outputJSON =
+    await pyodide.runPythonAsync(`
+
+import json
+
+data = json.loads(input_json)
+
+engine = CostStateTransitionEngine()
+
+decision = engine.evaluate(
+    cost_state=data["cost_state"],
+    recognition=data["recognition"],
+    evidence=data["evidence"],
+    authority=data["authority"],
+)
+
+decision = engine.simulate_transition(
+    cost_state=data["cost_state"],
+    decision=decision,
+    simulate_failure=data["simulate_failure"],
+)
+
+json.dumps(decision.to_dict())
+`);
+
+
+  const result = JSON.parse(outputJSON);
+
+
+  renderTrace([
+    {
+      title: "Retrieve",
+      description:
+        "Internal cost state, production records and recognition evidence admitted.",
+      status: "PASS"
+    },
+
+    {
+      title: "Classify",
+      description:
+        "Production order, cost object, material, labour and overhead relationships tested.",
+      status:
+        result.relationship_valid ? "PASS" : "REVIEW"
+    },
+
+    {
+      title: "Structure",
+      description:
+        "Recognition rule, production completion, period and supporting evidence structured.",
+      status:
+        result.evidence_sufficient ? "PASS" : "REVIEW"
+    },
+
+    {
+      title: "Route",
+      description:
+        "RAEL determines whether the internal cost state may cross the financial-recognition boundary.",
+      status:
+        result.route === "BSTP" ? "BSTP" : "ASLTP"
+    },
+
+    {
+      title: "Execute",
+      description:
+        result.execution_status === "EXECUTED"
+        ? "Authorized WIP-to-finished-goods state transition executed."
+        : result.execution_status === "AUTHORIZED"
+        ? "Financial-state transition authorized."
+        : "Transition held pending professional review.",
+      status:
+        result.execution_status
+    },
+
+    {
+      title: "Verify",
+      description:
+        "Observed WIP, finished-goods value and financial state compared with expected state.",
+      status:
+        result.verification_status === "PASSED"
+        ? "PASS"
+        : result.verification_status === "FAILED"
+        ? "FAIL"
+        : "HELD"
+    }
+  ]);
+
+
+  renderResults([
+    ["Module", result.module],
+    ["Confidence", result.confidence.toFixed(2)],
+    ["Relationship Valid", String(result.relationship_valid)],
+    ["Evidence / Recognition Sufficient", String(result.evidence_sufficient)],
+    ["Authority Granted", String(result.authority_granted)],
+    ["Route", result.route],
+    ["Execution Status", result.execution_status],
+    ["Verification Status", result.verification_status],
+    ["Closure Status", result.closure_status],
+    ["Reasons", result.reasons.length ? result.reasons.join(", ") : "None"]
+  ]);
+
+
+  if (result.closure_status === "VERIFIED_CLOSED") {
+    setFinal("FINANCIAL STATE VERIFIED", "closed");
+  }
+  else if (result.closure_status === "ESCALATED") {
+    setFinal("STATE TRANSITION ESCALATED", "escalated");
+  }
+  else {
+    setFinal("FINANCIAL RECOGNITION HELD", "reviewing");
+  }
+
+
+  setGEEP({
+    module: result.module,
+    internal_state:
+      "COST_ACCOUNTING_STATE",
+    target_state:
+      "FINANCIAL_ACCOUNTING_STATE",
+    relationship_valid:
+      result.relationship_valid,
+    evidence_sufficient:
+      result.evidence_sufficient,
+    authority_granted:
+      result.authority_granted,
+    route:
+      result.route,
+    verification_status:
+      result.verification_status,
+    closure_status:
+      result.closure_status,
+    reasons:
+      result.reasons
+  });
+}
+
+
+/* --------------------------------------------------------
+   NET WORTH
+-------------------------------------------------------- */
+
+async function runNetWorth() {
+
+  if (!ensurePython()) return;
+
+  const input = {
+
+    observed_item: {
+      item_id:
+        document.getElementById("nItemId").value,
+
+      amount:
+        Number(document.getElementById("nAmount").value),
+
+      observed_type:
+        document.getElementById("nType").value
+    },
+
+    taxpayer_response: {
+      response_received:
+        document.getElementById("nResponse").checked,
+
+      explanation:
+        document.getElementById("nExplanation").value,
+
+      relationship:
+        document.getElementById("nRelationship").value
+    },
+
+    evidence: {
+      primary_document_available:
+        document.getElementById("nPrimary").checked,
+
+      source_trace_available:
+        document.getElementById("nTrace").checked,
+
+      counterparty_support_available:
+        document.getElementById("nCounterparty").checked,
+
+      contradictory_evidence:
+        document.getElementById("nConflict").checked
+    },
+
+    authority: {
+      enabled:
+        document.getElementById("nAuthority").checked
+    }
+  };
+
+
+  pyodide.globals.set(
+    "input_json",
+    JSON.stringify(input)
+  );
+
+
+  const outputJSON =
+    await pyodide.runPythonAsync(`
+
+import json
+
+data = json.loads(input_json)
+
+engine = NetWorthStateEngine()
+
+result = engine.evaluate_item(
+    observed_item=data["observed_item"],
+    taxpayer_response=data["taxpayer_response"],
+    evidence=data["evidence"],
+    authority=data["authority"],
+)
+
+json.dumps(result.to_dict())
+`);
+
+
+  const result = JSON.parse(outputJSON);
+
+
+  renderTrace([
+    {
+      title: "Retrieve",
+      description:
+        "Observed financial item admitted from the net-worth reconstruction.",
+      status: "PASS"
+    },
+
+    {
+      title: "Classify",
+      description:
+        "Candidate economic relationship recorded from taxpayer clarification.",
+      status:
+        result.candidate_relationship
+        ? "PASS"
+        : "REVIEW"
+    },
+
+    {
+      title: "Structure",
+      description:
+        "Taxpayer explanation, documents, source tracing and conflicting evidence preserved.",
+      status:
+        result.evidence_status === "SUFFICIENT"
+        ? "PASS"
+        : result.evidence_status === "CONFLICTING"
+        ? "FAIL"
+        : "REVIEW"
+    },
+
+    {
+      title: "Route",
+      description:
+        "Relationship status determines whether the item is excluded, analyzed, clarified or reviewed.",
+      status:
+        result.relationship_status === "VERIFIED"
+        ? "PASS"
+        : "ASLTP"
+    },
+
+    {
+      title: "Administrative Treatment",
+      description:
+        result.audit_route.replaceAll("_", " "),
+      status:
+        result.relationship_status === "VERIFIED"
+        ? "AUTHORIZED"
+        : "HELD"
+    },
+
+    {
+      title: "Verify",
+      description:
+        "Administrative fact status remains distinct from numerical presence in the net-worth schedule.",
+      status:
+        result.administrative_fact_status === "FACT_FORMED"
+        ? "VERIFIED"
+        : "HELD"
+    }
+  ]);
+
+
+  renderResults([
+    ["Observed Item", result.item_id],
+    ["Observed Amount", result.observed_amount.toLocaleString()],
+    ["Observed Type", result.observed_type],
+    ["Candidate Relationship", result.candidate_relationship || "None"],
+    ["Evidence Status", result.evidence_status],
+    ["Relationship Status", result.relationship_status],
+    ["Tax Characterization", result.tax_characterization],
+    ["Audit Route", result.audit_route],
+    ["Administrative Fact Status", result.administrative_fact_status],
+    ["Reasons", result.reasons.length ? result.reasons.join(", ") : "None"]
+  ]);
+
+
+  if (result.administrative_fact_status === "FACT_FORMED") {
+
+    setFinal(
+      "ADMINISTRATIVE FACT FORMED",
+      "closed"
+    );
+
+  } else if (
+    result.relationship_status === "CONFLICTING"
+  ) {
+
+    setFinal(
+      "CONFLICTING EVIDENCE — AUDITOR REVIEW",
+      "escalated"
+    );
+
+  } else {
+
+    setFinal(
+      "ADMINISTRATIVE FACT NOT YET ESTABLISHED",
+      "reviewing"
+    );
+  }
+
+
+  setGEEP({
+    module:
+      "NET_WORTH_ADMINISTRATIVE_STATE",
+
+    observed_item: {
+      item_id:
+        result.item_id,
+      amount:
+        result.observed_amount,
+      type:
+        result.observed_type
+    },
+
+    candidate_relationship:
+      result.candidate_relationship,
+
+    relationship_status:
+      result.relationship_status,
+
+    evidence_status:
+      result.evidence_status,
+
+    tax_characterization:
+      result.tax_characterization,
+
+    audit_route:
+      result.audit_route,
+
+    administrative_fact_status:
+      result.administrative_fact_status,
+
+    reasons:
+      result.reasons
+  });
+}
+
+
+/* --------------------------------------------------------
+   START
+-------------------------------------------------------- */
+
+initializePython();
+
 </script>
 
 </body>
