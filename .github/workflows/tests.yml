@@ -1,4 +1,4 @@
- name: RAEL Tests
+name: RAEL Tests
 
 on:
   push:
