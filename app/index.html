@@ -87,7 +87,7 @@ body {
 
 .tabs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   margin-bottom: 22px;
 }
@@ -414,6 +414,15 @@ button.run:hover {
         <span>Financial Observation → Administrative Tax State</span>
       </button>
 
+      <button
+        id="consolidationTab"
+        class="tab"
+        onclick="setMode('consolidation')"
+      >
+        <strong>4. IFRS Consolidation</strong>
+        <span>Entity Accounting State → Consolidated Group State</span>
+      </button>
+
     </div>
 
     <div class="layout">
@@ -697,6 +706,69 @@ button.run:hover {
 
         </div>
 
+        <div id="consolidationForm" class="hidden">
+
+          <h2>IFRS-Governed Group Consolidation</h2>
+
+          <div class="boundary">
+            IFRS defines the consolidation boundary and permitted accounting route.
+            RAEL verifies whether the reciprocal relationship is sufficiently established
+            before elimination or consolidation execution is authorized.
+          </div>
+
+          <div class="field">
+            <label>Relationship Key</label>
+            <input id="gKey" value="HOLDCO|CAN_SUB|LOAN|2026|USD" />
+          </div>
+
+          <div class="field">
+            <label>Entity A</label>
+            <input id="gEntityA" value="HOLDCO" />
+          </div>
+
+          <div class="field">
+            <label>Entity B</label>
+            <input id="gEntityB" value="CAN_SUB" />
+          </div>
+
+          <div class="field">
+            <label>Relationship Type</label>
+            <select id="gType">
+              <option value="LOAN">Intercompany loan</option>
+              <option value="TRADE">Intercompany trade</option>
+              <option value="INTEREST">Intercompany interest</option>
+              <option value="MANAGEMENT_FEE">Management fee</option>
+              <option value="EQUITY_OWNERSHIP">Equity ownership / control assessment</option>
+              <option value="EXTERNAL">External balance</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Entity A Balance</label>
+            <input id="gAmountA" type="number" value="500000" />
+          </div>
+
+          <div class="field">
+            <label>Entity B Reciprocal Balance</label>
+            <input id="gAmountB" type="number" value="-480000" />
+          </div>
+
+          <div class="field">
+            <label>Currency</label>
+            <input id="gCurrency" value="USD" />
+          </div>
+
+          <div class="field">
+            <label>Period</label>
+            <input id="gPeriod" value="2026" />
+          </div>
+
+          <button class="run" onclick="runConsolidation()">
+            Evaluate Consolidation Relationship
+          </button>
+
+        </div>
+
       </div>
 
 
@@ -752,10 +824,12 @@ function setMode(mode) {
   document.getElementById("settlementTab").classList.remove("active");
   document.getElementById("costTab").classList.remove("active");
   document.getElementById("netWorthTab").classList.remove("active");
+  document.getElementById("consolidationTab").classList.remove("active");
 
   document.getElementById("settlementForm").classList.add("hidden");
   document.getElementById("costForm").classList.add("hidden");
   document.getElementById("netWorthForm").classList.add("hidden");
+  document.getElementById("consolidationForm").classList.add("hidden");
 
   if (mode === "settlement") {
     document.getElementById("settlementTab").classList.add("active");
@@ -770,6 +844,11 @@ function setMode(mode) {
   if (mode === "networth") {
     document.getElementById("netWorthTab").classList.add("active");
     document.getElementById("netWorthForm").classList.remove("hidden");
+  }
+
+  if (mode === "consolidation") {
+    document.getElementById("consolidationTab").classList.add("active");
+    document.getElementById("consolidationForm").classList.remove("hidden");
   }
 
   clearOutput();
@@ -816,7 +895,10 @@ async function initializePython() {
         await loadText(base + "modules/cost_state_transition.py"),
 
       "/home/pyodide/modules/net_worth_state.py":
-        await loadText(base + "modules/net_worth_state.py")
+        await loadText(base + "modules/net_worth_state.py"),
+
+      "/home/pyodide/modules/consolidation.py":
+        await loadText(base + "modules/consolidation.py")
     };
 
     pyodide.FS.mkdirTree("/home/pyodide/core");
@@ -833,6 +915,7 @@ sys.path.insert(0, "/home/pyodide")
 from modules.settlement import SettlementEngine
 from modules.cost_state_transition import CostStateTransitionEngine
 from modules.net_worth_state import NetWorthStateEngine
+from modules.consolidation import RAELConsolidationEngine, RelationshipRecord
 `);
 
     pythonReady = true;
@@ -1601,6 +1684,200 @@ json.dumps(result.to_dict())
 
     reasons:
       result.reasons
+  });
+}
+
+
+/* --------------------------------------------------------
+   IFRS CONSOLIDATION
+-------------------------------------------------------- */
+
+async function runConsolidation() {
+
+  if (!ensurePython()) return;
+
+  const input = {
+    relationship_key:
+      document.getElementById("gKey").value,
+
+    entity_a:
+      document.getElementById("gEntityA").value,
+
+    entity_b:
+      document.getElementById("gEntityB").value,
+
+    relationship_type:
+      document.getElementById("gType").value,
+
+    amount_a:
+      Number(document.getElementById("gAmountA").value),
+
+    amount_b:
+      Number(document.getElementById("gAmountB").value),
+
+    currency:
+      document.getElementById("gCurrency").value,
+
+    period:
+      document.getElementById("gPeriod").value
+  };
+
+  pyodide.globals.set(
+    "input_json",
+    JSON.stringify(input)
+  );
+
+  const outputJSON =
+    await pyodide.runPythonAsync(`
+
+import json
+
+data = json.loads(input_json)
+
+engine = RAELConsolidationEngine()
+
+record = RelationshipRecord(
+    relationship_key=data["relationship_key"],
+    entity_a=data["entity_a"],
+    entity_b=data["entity_b"],
+    relationship_type=data["relationship_type"],
+    amount_a=data["amount_a"],
+    amount_b=data["amount_b"],
+    currency=data["currency"],
+    period=data["period"],
+)
+
+result = engine.verify_relationship(record)
+
+json.dumps({
+    "relationship_key": result.relationship_key,
+    "entity_a": result.entity_a,
+    "entity_b": result.entity_b,
+    "relationship_type": result.relationship_type,
+    "amount_a": result.amount_a,
+    "amount_b": result.amount_b,
+    "currency": result.currency,
+    "period": result.period,
+    "ifrs_route": result.ifrs_route,
+    "variance": result.variance,
+    "rael_status": result.rael_status,
+    "authorized": result.authorized,
+    "reasoning_steps": result.reasoning_steps or []
+})
+`);
+
+  const result = JSON.parse(outputJSON);
+
+  const routeStatus =
+    result.ifrs_route === "CONSOLIDATE" ||
+    result.ifrs_route === "ELIMINATE"
+    ? "PASS"
+    : "REVIEW";
+
+  const verifyStatus =
+    result.rael_status === "AUTHORIZED" ||
+    result.rael_status === "PASS"
+    ? "VERIFIED"
+    : result.rael_status === "HOLD_FOR_REVIEW"
+    ? "HELD"
+    : "REVIEW";
+
+  renderTrace([
+    {
+      title: "Retrieve",
+      description:
+        "Entity-level balances and relationship identifiers admitted for group accounting analysis.",
+      status: "PASS"
+    },
+
+    {
+      title: "Classify",
+      description:
+        "Relationship type classified without treating numerical equality as relationship identity.",
+      status: "PASS"
+    },
+
+    {
+      title: "IFRS Route",
+      description:
+        "IFRS determines the permitted route across the separate-entity to group-accounting boundary.",
+      status: routeStatus
+    },
+
+    {
+      title: "Verify Relationship",
+      description:
+        result.variance === 0
+        ? "Reciprocal state reconciles."
+        : `Reciprocal variance of ${result.variance.toLocaleString()} preserved for review.`,
+      status: verifyStatus
+    },
+
+    {
+      title: "Authorize",
+      description:
+        result.authorized
+        ? "Relational conditions satisfied; accounting execution authorized."
+        : "Execution authority withheld until the unresolved relationship is reviewed.",
+      status:
+        result.authorized ? "AUTHORIZED" : "HELD"
+    },
+
+    {
+      title: "Represent",
+      description:
+        "The resulting group-accounting state preserves the reasoning path supporting, or blocking, execution.",
+      status:
+        result.authorized ? "PASS" : "HELD"
+    }
+  ]);
+
+  renderResults([
+    ["Relationship Key", result.relationship_key],
+    ["Relationship Type", result.relationship_type],
+    ["Entity A", result.entity_a],
+    ["Entity B", result.entity_b],
+    ["Entity A Balance", result.amount_a.toLocaleString()],
+    ["Entity B Balance", result.amount_b.toLocaleString()],
+    ["Variance", result.variance.toLocaleString()],
+    ["Currency", result.currency],
+    ["Period", result.period],
+    ["IFRS Route", result.ifrs_route],
+    ["RAEL Status", result.rael_status],
+    ["Authorized", String(result.authorized)],
+    ["Reasoning", result.reasoning_steps.join(" | ")]
+  ]);
+
+  if (result.authorized) {
+    setFinal(
+      "RELATIONSHIP VERIFIED — EXECUTION AUTHORIZED",
+      "closed"
+    );
+  } else {
+    setFinal(
+      "REPRESENTATION PRESERVED — REVIEW REQUIRED",
+      "reviewing"
+    );
+  }
+
+  setGEEP({
+    module: "IFRS_GROUP_CONSOLIDATION",
+    boundary:
+      "ENTITY_ACCOUNTING_STATE_TO_CONSOLIDATED_GROUP_STATE",
+    relationship_key:
+      result.relationship_key,
+    relationship_type:
+      result.relationship_type,
+    ifrs_route:
+      result.ifrs_route,
+    variance:
+      result.variance,
+    rael_status:
+      result.rael_status,
+    authorized:
+      result.authorized,
+    reasoning_steps:
+      result.reasoning_steps
   });
 }
 
